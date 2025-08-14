@@ -1,0 +1,86 @@
+﻿@model VisiTrack.Models.ViewModel.CheckInViewModel
+
+@{
+    ViewData["Title"] = "CheckIn Page";
+}
+
+
+<h3 class="mb-3" style="padding-top:75px;">Visitor Check-In</h3>
+<hr />
+
+<div class="row">
+<div class="card p-4 shadow bg-light col-6">
+<form asp-action="CheckIn" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3 row">
+        <label asp-for="Visitor.FirstName" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="Visitor.FirstName" class="form-control" />
+            <span asp-validation-for="Visitor.FirstName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="Visitor.LastName" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="Visitor.LastName" class="form-control" />
+            <span asp-validation-for="Visitor.LastName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="Visitor.Company" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="Visitor.Company" class="form-control" />
+            <span asp-validation-for="Visitor.Company" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="Visitor.ContactNumber" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="Visitor.ContactNumber" class="form-control" />
+            <span asp-validation-for="Visitor.ContactNumber" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="Visitor.Email" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <input asp-for="Visitor.Email" class="form-control" />
+            <span asp-validation-for="Visitor.Email" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="HostID" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <select asp-for="HostID" class="form-select" asp-items="Model.Hosts">
+                <option value="">-- Select Host --</option>
+            </select>
+            <span asp-validation-for="HostID" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <label asp-for="Purpose" class="col-sm-4 col-form-label"></label>
+        <div class="col-sm-8">
+            <textarea asp-for="Purpose" class="form-control"></textarea>
+            <span asp-validation-for="Purpose" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="offset-sm-4 col-sm-8">
+            <input type="submit" value="Check In" class="btn btn-primary w-100" />
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

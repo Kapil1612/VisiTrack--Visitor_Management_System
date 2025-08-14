@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3" style="padding-top:75px;">
+    <h3 class="text-info">📞 Contact Us</h3>
+    <a asp-action="Dashboard" class="btn btn-sm btn-outline-primary">Back to Dashboard</a>
+</div>
+<hr />
+
+<div class="card bg-light p-4 shadow-lg">
+    <p class="text-muted">
+        Have a question, suggestion, or issue with <strong>VisiTrack</strong>?
+        Fill out the form below and we'll get back to you as soon as possible.
+    </p>
+
+    <form asp-action="Contact" method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="Name" class="form-label">Your Name</label>
+            <input type="text" name="Name" id="Name" class="form-control" required />
+        </div>
+
+        <div class="col-md-6">
+            <label for="Email" class="form-label">Your Email</label>
+            <input type="email" name="Email" id="Email" class="form-control" required />
+        </div>
+
+        <div class="col-12">
+            <label for="Subject" class="form-label">Subject</label>
+            <input type="text" name="Subject" id="Subject" class="form-control" required />
+        </div>
+
+        <div class="col-12">
+            <label for="Message" class="form-label">Message</label>
+            <textarea name="Message" id="Message" rows="5" class="form-control" required></textarea>
+        </div>
+
+        <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+                Send Message
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="mt-5">
+    <h5 class="text-secondary">Other Ways to Reach Us</h5>
+    <ul class="list-unstyled">
+        <li>📍 Address: 123 Office Park, City, Country</li>
+        <li>📧 Email: support@visitrack.com</li>
+        <li>📞 Phone: +91 98765 43210</li>
+    </ul>
+</div>

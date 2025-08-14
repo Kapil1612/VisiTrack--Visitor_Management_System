@@ -1,0 +1,114 @@
+﻿@model VisiTrack.Models.ViewModel.ReportViewModel
+
+@{
+    ViewData["Title"] = "Report page";
+}
+<div class="d-flex justify-content-between" style="padding-top:75px;">
+    <h3>Visitor Log</h3>
+    <a asp-action="Dashboard" class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
+</div>
+<hr />
+
+<div class="card bg-light shadow-sm mb-4 p-3">
+    <h4>Generate Custom Report</h4>
+    <form asp-action="Report" method="get" class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="StartDate" class="form-label">Start Date</label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="EndDate" class="form-label">End Date</label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+@if (Model.CustomReport != null && Model.CustomReport.Any())
+{
+
+    <h2 class="text-primary mt-3">
+        📆 Report From  @(Model.StartDate.HasValue? Model.StartDate.Value.ToString("d") : "N/A")
+        to
+        @(Model.EndDate.HasValue? Model.EndDate.Value.ToString("d") : "N/A").
+    </h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Visit ID</th>
+                <th>Visitor Name</th>
+                <th>Company</th>
+                <th>Host Name</th>
+                <th>Purpose</th>
+                <th>Check-In Time</th>
+                <th>Check-Out Time</th>
+                <th>Duration</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var visit in Model.CustomReport)
+            {
+                <tr>
+                    <td>@visit.VisitID</td>
+                    <td>@visit.VisitorName</td>
+                    <td>@visit.Company</td>
+                    <td>@visit.HostName</td>
+                    <td>@visit.Purpose</td>
+                    <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
+                    <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
+                    <td>@visit.Duration</td>
+                    <td>@visit.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (Model.StartDate.HasValue && Model.EndDate.HasValue)
+{
+    <p class="text-muted">
+        No records found between @Model.StartDate.Value.ToString("d") and @Model.EndDate.Value.ToString("d").
+    </p>
+}
+else if (Model.DailyReport != null && Model.DailyReport.Any())
+{
+   
+    <h2 class="text-primary mt-3">📆 Daily Report</h2>
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Visit ID</th>
+                <th>Visitor Name</th>
+                <th>Company</th>
+                <th>Host Name</th>
+                <th>Purpose</th>
+                <th>Check-In Time</th>
+                <th>Check-Out Time</th>
+                <th>Duration</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var visit in Model.DailyReport)
+            {
+                <tr>
+                    <td>@visit.VisitID</td>
+                    <td>@visit.VisitorName</td>
+                    <td>@visit.Company</td>
+                    <td>@visit.HostName</td>
+                    <td>@visit.Purpose</td>
+                    <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
+                    <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
+                    <td>@visit.Duration</td>
+                    <td>@visit.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">No Record found for today.</p>
+}

@@ -1,0 +1,41 @@
+﻿@model IEnumerable<VisiTrack.Models.ViewModel.VisitsViewModel>
+
+@{
+    ViewData["Title"] = "All Visits";
+}
+<div class="d-flex justify-content-between" style="padding-top:75px;">
+<h3>All Visitor Logs</h3>
+<a asp-action="Dashboard"  class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
+</div>
+<hr />
+
+<table class="table table-bordered table-striped shadow table-hover">
+    <thead>
+        <tr>
+            <th>Visit ID</th>
+            <th>Visitor Name</th>
+            <th>Company</th>
+            <th>Host Name</th>
+            <th>Purpose</th>
+            <th>Check-In Time</th>
+            <th>Check-Out Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var visit in Model)
+        {
+            <tr>
+                <td>@visit.VisitID</td>
+                <td>@visit.VisitorName</td>
+                <td>@visit.Company</td>
+                <td>@visit.HostName</td>
+                <td>@visit.Purpose</td>
+                <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
+                <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
+                <td>@visit.Status</td>
+            </tr>
+        }
+        </tbody>
+</table>
+
