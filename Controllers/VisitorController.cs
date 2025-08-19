@@ -68,6 +68,7 @@ namespace VisiTrack.Controllers
             var query = context.Visits
             .Include(v => v.Visitor)
             .Include(v => v.Host)
+            .Where(v => v.Status == "Checked In")
             .AsQueryable();
 
 

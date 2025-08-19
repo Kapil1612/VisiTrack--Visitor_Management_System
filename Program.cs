@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VisiTrack.Data;
+using Microsoft.AspNetCore.Identity;
+using VisiTrack.Areas.Identity.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<IdentityDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<IdentityDbContext>();
 
 builder.Services.AddControllersWithViews();
 
@@ -30,5 +37,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Visitor}/{action=CheckIn}/{id?}");
+
+app.MapRazorPages();
 
 app.Run();

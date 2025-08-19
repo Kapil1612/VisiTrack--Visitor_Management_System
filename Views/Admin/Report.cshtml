@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Report page";
 }
-<div class="d-flex justify-content-between" style="padding-top:75px;">
+<div class="d-flex justify-content-between">
     <h3>Visitor Log</h3>
     <a asp-action="Dashboard" class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
 </div>
@@ -34,7 +34,7 @@
         to
         @(Model.EndDate.HasValue? Model.EndDate.Value.ToString("d") : "N/A").
     </h2>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped table-hover ">
         <thead>
             <tr>
                 <th>Visit ID</th>
