@@ -5,7 +5,16 @@
 }
 <div class="d-flex justify-content-between">
     <h3>Visitor Log</h3>
+    <div class="justify-content-end">
+        <a asp-controller="Admin" asp-action="GeneratePdf"
+           asp-route-startDate="@Model.StartDate"
+           asp-route-endDate="@Model.EndDate"
+           class="btn btn-light">
+            Download PDF Report
+        </a>
+
     <a asp-action="Dashboard" class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
+    </div>
 </div>
 <hr />
 

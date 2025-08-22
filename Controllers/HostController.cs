@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,7 +17,7 @@ namespace VisiTrack.Controllers
     {
 
 
-        // GET: Host
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             var hosts = context.Hosts

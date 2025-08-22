@@ -10,6 +10,8 @@ namespace VisiTrack.Data
         public DbSet<Visitor> Visitors { get; set; }
         public DbSet<VisiTrack.Models.Host> Hosts { get; set; }
         public DbSet<Visit> Visits { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
+
     }
 
 }

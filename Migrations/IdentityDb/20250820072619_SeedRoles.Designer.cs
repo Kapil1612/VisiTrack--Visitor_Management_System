@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VisiTrack.Areas.Identity.Data;
 
@@ -11,9 +12,11 @@ using VisiTrack.Areas.Identity.Data;
 namespace VisiTrack.Migrations.IdentityDb
 {
     [DbContext(typeof(IdentityDbContext))]
-    partial class IdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250820072619_SeedRoles")]
+    partial class SeedRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,13 +153,6 @@ namespace VisiTrack.Migrations.IdentityDb
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "100",
-                            RoleId = "1"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -251,24 +247,6 @@ namespace VisiTrack.Migrations.IdentityDb
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "100",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "f85e673e-491f-4c79-8af2-cbe4b32dc7a8",
-                            Email = "admin@erp.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@ERP.COM",
-                            NormalizedUserName = "ADMIN@ERP.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN1Mu0xENXGOFRj9ROHpZAIbQX8jvaOs+BY1DIBgL5N3e9AH3gWvnBcqYRkz4UIfxg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "d6cf30c8-68a9-4116-a3e0-3972a1a4c7a3",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@erp.com"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

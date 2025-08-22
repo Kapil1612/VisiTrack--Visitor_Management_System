@@ -14,30 +14,46 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light fixed-top border-bottom shadow-sm mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" style=" margin-right: -12rem;" asp-area="" asp-controller="Admin" asp-action="Dashboard">
-                    <img src="~/images/logo.jpg" class="img-fluid" style="max-width:33%;"  alt="logo">
-                </a>
+                
+                <img src="~/images/logo.jpg" class="img-fluid" style="max-width:12%; margin-right:15px;"  alt="logo">
+              
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+
+                        @if (User.IsInRole("Admin"))
+                    {
                         <li class="nav-item ">
                             <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
                         </li>
+                    }
+                        @if (User.IsInRole("Admin"))
+                    {
                         <li class="nav-item ">
                             <a class="nav-link" asp-area="" asp-controller="Host" asp-action="Index" >Host</a>
                         </li>
+                    }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Visitor" asp-action="CheckIn">Check-In</a>
                         </li>
+                    }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Visitor" asp-action="CheckOut">Check-Out</a>
                         </li>
+                    }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Contact">Contact Us</a>
                         </li>
+                    }
                     </ul>
                 </div>
                 <partial name="_LoginPartial"/>

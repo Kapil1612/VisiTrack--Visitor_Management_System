@@ -1,4 +1,6 @@
-﻿@{
+﻿@model VisiTrack.Models.Contact
+ 
+@{
     ViewData["Title"] = "Contact Us";
 }
 
@@ -14,25 +16,29 @@
         Fill out the form below and we'll get back to you as soon as possible.
     </p>
 
-    <form asp-action="Contact" method="post" class="row g-3">
+    <form asp-controller="Admin" asp-action="Contact" method="post" class="row g-3">
         <div class="col-md-6">
-            <label for="Name" class="form-label">Your Name</label>
-            <input type="text" name="Name" id="Name" class="form-control" required />
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" maxlength="50" />
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
-            <label for="Email" class="form-label">Your Email</label>
-            <input type="email" name="Email" id="Email" class="form-control" required />
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control"  />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="col-12">
-            <label for="Subject" class="form-label">Subject</label>
-            <input type="text" name="Subject" id="Subject" class="form-control" required />
+            <label asp-for="Subject" class="form-label"></label>
+            <input asp-for="Subject" class="form-control" maxlength="100" />
+            <span asp-validation-for="Subject" class="text-danger"></span>
         </div>
 
         <div class="col-12">
-            <label for="Message" class="form-label">Message</label>
-            <textarea name="Message" id="Message" rows="5" class="form-control" required></textarea>
+            <label asp-for="Message" class="form-label"></label>
+            <input asp-for="Message" class="form-control" maxlength="500" />
+            <span asp-validation-for="Message" class="text-danger"></span>
         </div>
 
         <div class="col-12 d-flex justify-content-end">

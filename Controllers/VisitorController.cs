@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace VisiTrack.Controllers
 {
     public class VisitorController(ApplicationContext context) : Controller
     {
+        [Authorize(Roles = "Admin,Staff")]
         public IActionResult CheckIn()
         {
             var model = new CheckInViewModel
@@ -62,7 +64,7 @@ namespace VisiTrack.Controllers
         }
 
 
-        [HttpGet]
+        [Authorize(Roles = "Admin,Staff")]
         public IActionResult CheckOut(string name, DateTime? date)
         {
             var query = context.Visits
