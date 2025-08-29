@@ -27,11 +27,15 @@
     <h3 class="m-4">• Quick Actions</h3>
     <div class="row">
         <div class="col-md-3">
-            <a asp-action="Visits" asp-controller="Admin" class="btn btn-primary w-100 mb-2">View All Visits</a>
+            <a asp-action="Visits" asp-controller="Admin" class="btn btn-success w-100 mb-2">View All Visits</a>
         </div>
         <div class="col-md-3">
-            <a asp-action="Report" asp-controller="Admin" class="btn btn-success w-100 mb-2">Generate Report</a>
+            <a asp-action="TodayReport" asp-controller="Admin" class="btn btn-primary w-100 mb-2">Daily Report</a>
         </div>
+        <div class="col-md-3">
+            <a asp-action="Report" asp-controller="Admin" class="btn btn-danger w-100 mb-2">Custom Report</a>
+        </div>
+       
      
     </div>
 

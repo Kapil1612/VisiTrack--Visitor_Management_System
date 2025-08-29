@@ -71,13 +71,14 @@ namespace VisiTrack.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [Required]
-            [StringLength(100, ErrorMessage = "FirstName Must be of 100 characters.")]
+
+            [Required(ErrorMessage = "First Name is required")]
+            [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters")]
             [Display(Name = "First Name")]
             public string FirstName { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "LastName Must be of 100 characters.")]
+            [Required(ErrorMessage = "Last Name is required")]
+            [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters")]
             [Display(Name = "Last Name")]
             public string LastName { get; set; }
 
@@ -86,8 +87,10 @@ namespace VisiTrack.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Email is required")]
+            [StringLength(50, ErrorMessage = "Email cannot exceed 50 characters")]
+            [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+             ErrorMessage = "Enter a valid email address")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 

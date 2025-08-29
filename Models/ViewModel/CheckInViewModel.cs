@@ -13,7 +13,8 @@ namespace VisiTrack.Models.ViewModel
 
         public List<SelectListItem>? Hosts { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "purpose is required")]
+        [StringLength(50, ErrorMessage = "Department cannot exceed 50 characters")]
         public string? Purpose { get; set; }
 
 

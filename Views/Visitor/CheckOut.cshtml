@@ -13,7 +13,7 @@
         </div>  
 
         <div class="col-md-4">  
-            <input type="date" name="date" value="" class="form-control" />  
+            <input type="date" name="date" value="" class="form-control" />
         </div>  
 
         <div class="col-md-3 ">  
@@ -21,17 +21,25 @@
         </div>  
     </form>  
 </div>   
-<hr />    
+<hr style="margin-bottom:11px; margin-top:11px;" />
 
 @if(Model.Visits != null && Model.Visits.Any())  
 {  
 <form asp-action="CheckOut" method="post">  
     @Html.AntiForgeryToken()  
+
+        <button type="button" id="showCheckboxes" class="btn btn-secondary mb-2">
+            Select Visitors
+        </button>
+
 <table class="table table-striped table-hover shadow table-bordered ">  
     <thead>  
-        <tr>  
-            <th>  
-            </th>  
+        <tr>
+                    <th id="a1" class="d-none">
+                        <input type="checkbox" id="selectAll" class="d-none" />
+                        <label for="selectAll">All</label>
+                        
+                    </th>  
             <th>  
                 @Html.DisplayName("Visitor Name")  
             </th>  
@@ -40,7 +48,10 @@
             </th>  
             <th>  
                 @Html.DisplayName("Host Name")  
-            </th>  
+            </th>
+            <th>
+                @Html.DisplayName("Purpose")
+            </th>
             <th>  
                 @Html.DisplayName("Check-In Time")  
             </th>  
@@ -48,10 +59,10 @@
     </thead>  
     <tbody>  
 @foreach (var item in Model.Visits) {  
-        <tr>  
-            <td>  
-                <input type="checkbox" name="visitId" value="@item.VisitID" />  
-            </td>  
+        <tr>
+                        <td class="a2 d-none">
+                            <input type="checkbox" class="rowCheckbox d-none" name="visitId" value="@item.VisitID" />
+                        </td>  
             <td>  
                 @Html.DisplayFor(modelItem => item.VisitorName)  
             </td>  
@@ -60,17 +71,20 @@
             </td>  
             <td>  
                 @Html.DisplayFor(modelItem => item.HostName)  
-            </td>  
-            <td>  
-                @Html.DisplayFor(modelItem => item.CheckInTime)  
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Purpose)
+            </td>
+            <td>
+                @(item.CheckInTime?.ToString("dd-MM-yyyy hh:mm tt") ?? "N/A")
             </td>  
         </tr>  
 }  
     </tbody>  
-</table>  
+</table>
 
-<button  type="submit" class="btn btn-primary">  
-    Check Out Selected  
+        <button type="submit" class="btn btn-primary d-none" id="checkoutBtn">
+            Check Out Selected  
 </button>  
 
 </form>  
@@ -78,4 +92,33 @@
 else  
 {  
 <p class="text-muted">No results found.</p>  
+}
+@section Scripts {
+    <script>
+
+          // Show checkboxes when button is clicked
+        document.getElementById("showCheckboxes").addEventListener("click", function () {
+            document.querySelectorAll(".rowCheckbox").forEach(cb => cb.classList.remove("d-none"));
+            document.getElementById("selectAll").classList.remove("d-none");
+             document.getElementById("a1").classList.remove("d-none");
+             document.querySelectorAll(".a2").forEach(cb => cb.classList.remove("d-none"));
+            document.getElementById("checkoutBtn").classList.remove("d-none");
+            this.style.display = "none"; // hide "Select Visitors" button
+        });
+
+        // Toggle all rows when "Select All" is clicked
+        document.getElementById("selectAll").addEventListener("change", function () {
+            let checkboxes = document.querySelectorAll(".rowCheckbox");
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        // If one row is unchecked, uncheck "Select All"
+        document.querySelectorAll(".rowCheckbox").forEach(cb => {
+            cb.addEventListener("change", function () {
+                if (!this.checked) {
+                    document.getElementById("selectAll").checked = false;
+                }
+            });
+        });
+    </script>
 }

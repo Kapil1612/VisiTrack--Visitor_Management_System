@@ -4,6 +4,7 @@
     {
             public int VisitID { get; set; }
             public string? VisitorName { get; set; }
+            public string? VistorContactNumber { get; set; }
             public string? Company { get; set; }
             public string? HostName { get; set; }
             public string? Purpose { get; set; }

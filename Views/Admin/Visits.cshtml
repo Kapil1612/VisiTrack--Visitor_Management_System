@@ -7,13 +7,14 @@
 <h3>All Visitor Logs</h3>
 <a asp-action="Dashboard"  class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
 </div>
-<hr />
+<hr style="margin:11px;" />
 
-<table class="table table-bordered table-striped shadow table-hover">
+<table class="mt-3 table table-bordered table-striped shadow table-hover">
     <thead>
         <tr>
             <th>Visit ID</th>
             <th>Visitor Name</th>
+            <th>Mobile No.</th>
             <th>Company</th>
             <th>Host Name</th>
             <th>Purpose</th>
@@ -28,11 +29,12 @@
             <tr>
                 <td>@visit.VisitID</td>
                 <td>@visit.VisitorName</td>
+                <td>@visit.VistorContactNumber</td>
                 <td>@visit.Company</td>
                 <td>@visit.HostName</td>
                 <td>@visit.Purpose</td>
-                <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
-                <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
+                <td>@(visit.CheckInTime?.ToString("dd-MM-yyyy hh:mm tt") ?? "N/A")</td>
+                <td>@(visit.CheckOutTime?.ToString("dd-MM-yyyy hh:mm tt") ?? "N/A")</td>
                 <td>@visit.Status</td>
             </tr>
         }

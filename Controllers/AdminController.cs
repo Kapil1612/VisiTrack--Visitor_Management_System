@@ -1,14 +1,18 @@
-﻿using iText.Kernel.Pdf;
+﻿using iText.Kernel.Font;
+using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using VisiTrack.Data;
 using VisiTrack.Models;
 using VisiTrack.Models.ViewModel;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 
@@ -42,26 +46,27 @@ namespace VisiTrack.Controllers
             var model = context.Visits
                 .Include(v => v.Visitor)
                 .Include(v => v.Host)
-                .OrderByDescending(v => v.CheckInTime)
                 .Select(v => new VisitsViewModel
                 {
                     VisitID = v.VisitID,
                     VisitorName = (v.Visitor != null ? (v.Visitor.FirstName ?? "") + " " + (v.Visitor.LastName ?? "") : string.Empty),
+                    VistorContactNumber = v.Visitor != null ? v.Visitor.ContactNumber ?? "N/A" : "N/A",
                     Company = v.Visitor != null ? v.Visitor.Company : string.Empty,
                     HostName = (v.Host != null ? (v.Host.FirstName ?? "") + " " + (v.Host.LastName ?? "") : string.Empty),
                     Purpose = v.Purpose,
                     CheckInTime = v.CheckInTime,
                     CheckOutTime = v.CheckOutTime,
                     Status = v.Status
-                })
-                .ToList();
+                }).OrderBy(v => v.VisitorName)
+                  .ThenByDescending(v => v.VisitID)
+                  .ToList();
 
             return View(model);
         }
 
 
 
-        private ReportViewModel BuildReport(DateTime? startDate, DateTime? endDate)
+        private ReportViewModel BuildReport(DateTime? startDate, DateTime? endDate, string visitorSearch, string hostSearch, string companySearch, string purposeSearch, string statusSearch)
         {
            
 
@@ -80,18 +85,61 @@ namespace VisiTrack.Controllers
                     CheckInTime = v.CheckInTime,
                     CheckOutTime = v.CheckOutTime,
                     Status = v.Status
-                }).ToList();
+                }).OrderBy(v => v.VisitorName)
+                  .ThenByDescending(v => v.VisitID)
+                  .ToList();
+           
+            var customQuery = context.Visits
+                .Include(v => v.Visitor)
+                .Include(v => v.Host)
+                .AsQueryable();
 
-            // Custom report (between dates)
-            var custom = new List<ReportRowViewModel>();
+           
             if (startDate.HasValue && endDate.HasValue)
             {
-                custom = context.Visits
-                    .Include(v => v.Visitor)
-                    .Include(v => v.Host)
-                    .Where(v => v.CheckInTime.HasValue &&
-                                v.CheckInTime.Value.Date >= startDate.Value.Date &&
-                                v.CheckInTime.Value.Date <= endDate.Value.Date)
+                customQuery = customQuery.Where(v =>
+                    v.CheckInTime.HasValue &&
+                    v.CheckInTime.Value.Date >= startDate.Value.Date &&
+                    v.CheckInTime.Value.Date <= endDate.Value.Date);
+            }
+
+           
+            if (!string.IsNullOrEmpty(visitorSearch))
+            {
+                customQuery = customQuery.Where(v =>
+                    v.Visitor != null &&
+                    (v.Visitor.FirstName + " " + v.Visitor.LastName).Contains(visitorSearch));
+            }
+
+            if (!string.IsNullOrEmpty(companySearch))
+            {
+                customQuery = customQuery.Where(v =>
+                    v.Visitor != null && (v.Visitor.Company ?? "").Contains(companySearch));
+            }
+
+           
+            if (!string.IsNullOrEmpty(hostSearch))
+            {
+                customQuery = customQuery.Where(v =>
+                    v.Host != null && (v.Host.FirstName + " " + v.Host.LastName).Contains(hostSearch));
+            }
+
+        
+            if (!string.IsNullOrEmpty(purposeSearch))
+            {
+                customQuery = customQuery.Where(v =>
+                    (v.Purpose ?? "").Contains(purposeSearch));
+            }
+
+            // ✅ Apply status filter
+            if (!string.IsNullOrEmpty(statusSearch))
+            {
+                customQuery = customQuery.Where(v =>
+                    (v.Status ?? "").Contains(statusSearch));
+            }
+
+
+            var custom = customQuery
                     .Select(v => new ReportRowViewModel
                     {
                         VisitID = v.VisitID,
@@ -102,106 +150,190 @@ namespace VisiTrack.Controllers
                         CheckInTime = v.CheckInTime ?? DateTime.MinValue,
                         CheckOutTime = v.CheckOutTime,
                         Status = v.Status
-                    }).ToList();
-            }
+                    }).OrderBy(v => v.VisitorName)
+                      .ThenByDescending(v => v.VisitID)
+                      .ToList();
 
             return new ReportViewModel
             {
                 StartDate = startDate,
                 EndDate = endDate,
+                VisitorSearch = visitorSearch,
+                HostSearch = hostSearch,
+                CompanySearch = companySearch,
+                PurposeSearch = purposeSearch,
+                StatusSearch = statusSearch,
                 DailyReport = daily,
-                CustomReport = custom
+                CustomReport = custom,
+                DailyCount = daily.Count,
+                CustomCount = custom.Count
             };
         }
 
-        // 🔹 Show report in view
-        public IActionResult Report(DateTime? startDate, DateTime? endDate)
+      
+        public IActionResult Report(DateTime? startDate, DateTime? endDate, string visitorSearch,string hostSearch,string companySearch , string purposeSearch , string statusSearch)
         {
-            var model = BuildReport(startDate, endDate);
+            var model = BuildReport(startDate, endDate,visitorSearch, hostSearch, companySearch, purposeSearch, statusSearch);
             return View(model);
         }
 
-        // 🔹 Generate PDF report
-        [HttpGet]
-        public IActionResult GeneratePdf(DateTime? startDate, DateTime? endDate)
+        public IActionResult TodayReport()
         {
-            var model = BuildReport(startDate, endDate);
+            var model = BuildReport(null, null,"","","","","");
+            return View(model);
+        }
 
-            var ms = new MemoryStream();
+
+   
+        [HttpGet]
+        public IActionResult GenerateDailyPdf()
+        {
+            var model = BuildReport(null, null,"","","","",""); // always today's data
+
+
+            using var ms = new MemoryStream();
             using (var writer = new PdfWriter(ms))
             using (var pdf = new PdfDocument(writer))
             using (var document = new Document(pdf))
             {
-                // Title
-                document.Add(new Paragraph("Visitor`s Report")
+              
+                document.Add(new Paragraph("REPORT")
                     .SetTextAlignment(TextAlignment.CENTER)
                     .SetFontSize(18)
                     .SetBold());
 
-                // Date range (if provided)
-                if (model.StartDate.HasValue || model.EndDate.HasValue)
-                {
-                    document.Add(new Paragraph(
-                        $"From: {model.StartDate:dd-MM-yyyy}  To: {model.EndDate:dd-MM-yyyy}")
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetFontSize(12));
-                }
+                
+                document.Add(new Paragraph($"Date: {DateTime.Today:dd-MM-yyyy}")
+                    .SetTextAlignment(TextAlignment.LEFT)
+                    .SetFontSize(12));
 
-                // ✅ If custom report exists → show only that
-                if (model.CustomReport != null && model.CustomReport.Any())
+                if (model.DailyReport != null && model.DailyReport.Any())
                 {
-                    document.Add(new Paragraph("Custom Report")
-                        .SetFontSize(14).SetBold().SetMarginTop(15));
-                    document.Add(CreateTable(model.CustomReport));
-                }
-                // ✅ Otherwise, show daily report
-                else if (model.DailyReport != null && model.DailyReport.Any())
-                {
-                    document.Add(new Paragraph("Daily Report")
+                    document.Add(new Paragraph("Visitor Log")
                         .SetFontSize(14).SetBold().SetMarginTop(15));
                     document.Add(CreateTable(model.DailyReport));
                 }
                 else
                 {
-                    document.Add(new Paragraph("No records found.")
-                        .SetTextAlignment(TextAlignment.CENTER)
+                    document.Add(new Paragraph("No records found for today.")
+                        .SetTextAlignment(TextAlignment.LEFT)
                         .SetFontSize(12));
                 }
             }
-
-            return File(ms.ToArray(), "application/pdf", "VisitorReport.pdf");
+            
+            return File(ms.ToArray(), "application/pdf", "DailyVisitorReport.pdf");
         }
+
+
+        [HttpGet]
+        public IActionResult GenerateCustomPdf(DateTime? startDate, DateTime? endDate, string visitorSearch, string hostSearch, string companySearch, string purposeSearch, string statusSearch)
+        {
+           
+            if ((!startDate.HasValue || !endDate.HasValue) && string.IsNullOrEmpty(visitorSearch)
+        && string.IsNullOrEmpty(hostSearch)
+        && string.IsNullOrEmpty(companySearch)
+        && string.IsNullOrEmpty(purposeSearch)
+        && string.IsNullOrEmpty(statusSearch))
+
+            {
+                TempData["Error"] = "Please select a date range before downloading the custom report.";
+                return RedirectToAction("Report");
+            }
+
+            var model = BuildReport(startDate, endDate, visitorSearch, hostSearch, companySearch, purposeSearch, statusSearch);
+
+            byte[] fileBytes;
+            using var ms = new MemoryStream();
+            using (var writer = new PdfWriter(ms))
+            using (var pdf = new PdfDocument(writer))
+            using (var document = new Document(pdf))
+            {
+               
+                document.Add(new Paragraph("REPORT")
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(18)
+                    .SetBold());
+
+              
+                if (startDate.HasValue && endDate.HasValue)
+                {
+                    document.Add(new Paragraph($"From: {startDate:dd-MM-yyyy}  To: {endDate:dd-MM-yyyy}")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(12));
+                }
+                if (!string.IsNullOrEmpty(visitorSearch))
+                    document.Add(new Paragraph($"Visitor Filter: {visitorSearch}").SetFontSize(12));
+                if (!string.IsNullOrEmpty(hostSearch))
+                    document.Add(new Paragraph($"Host Filter: {hostSearch}").SetFontSize(12));
+                if (!string.IsNullOrEmpty(companySearch))
+                    document.Add(new Paragraph($"Company Filter: {companySearch}").SetFontSize(12));
+                if (!string.IsNullOrEmpty(purposeSearch))
+                    document.Add(new Paragraph($"Purpose Filter: {purposeSearch}").SetFontSize(12));
+                if (!string.IsNullOrEmpty(statusSearch))
+                    document.Add(new Paragraph($"Status Filter: {statusSearch}").SetFontSize(12));
+
+
+
+              
+                if (model.CustomReport != null && model.CustomReport.Any())
+                {
+                    document.Add(new Paragraph("Visitor Logs")
+                        .SetFontSize(14).SetBold().SetMarginTop(15));
+                    document.Add(CreateTable(model.CustomReport));
+                }
+                else
+                {
+                    document.Add(new Paragraph("No records found for the selected date range.")
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFontSize(12)); 
+                }
+                document.Close();
+
+              
+                fileBytes = ms.ToArray();
+            }
+            return File(fileBytes, "application/pdf", "CustomVisitorReport.pdf");
+        }
+
 
 
         private Table CreateTable(List<ReportRowViewModel> rows)
         {
-            Table table = new Table(8, false);
+            Table table = new Table(9, false);
 
-            // Header
-            table.AddHeaderCell("Visitor Name");
-            table.AddHeaderCell("Company");
-            table.AddHeaderCell("Host Name");
-            table.AddHeaderCell("Purpose");
-            table.AddHeaderCell("Check-In");
-            table.AddHeaderCell("Check-Out");
-            table.AddHeaderCell("Status");
-            table.AddHeaderCell("Duration");
+           
+            var bold = PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA_BOLD);
 
-            // Rows
+          
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Id").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Visitor Name").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Company").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Host Name").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Purpose").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Check-In").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Check-Out").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Duration").SetFont(bold).SetFontSize(12)));
+            table.AddHeaderCell(new Cell().Add(new Paragraph("Status").SetFont(bold).SetFontSize(12)));
+
+          
             foreach (var row in rows)
             {
-                table.AddCell(row.VisitorName ?? "");
-                table.AddCell(row.Company ?? "");
-                table.AddCell(row.HostName ?? "");
-                table.AddCell(row.Purpose ?? "");
-                table.AddCell(row.CheckInTime?.ToString("dd-MM-yyyy HH:mm") ?? "");
-                table.AddCell(row.CheckOutTime?.ToString("dd-MM-yyyy HH:mm") ?? "");
-                table.AddCell(row.Status ?? "");
-                table.AddCell(row.Duration ?? "");
+                table.AddCell(new Cell().Add(new Paragraph(row.VisitID.ToString()).SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.VisitorName ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.Company ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.HostName ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.Purpose ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.CheckInTime?.ToString("dd-MM-yyyy HH:mm") ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.CheckOutTime?.ToString("dd-MM-yyyy HH:mm") ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.Duration ?? "").SetFontSize(10)));
+                table.AddCell(new Cell().Add(new Paragraph(row.Status ?? "").SetFontSize(10)));
             }
 
             return table;
         }
+
+
+      
 
 
         public IActionResult Privacy()

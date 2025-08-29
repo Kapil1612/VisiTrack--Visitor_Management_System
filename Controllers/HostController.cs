@@ -21,8 +21,18 @@ namespace VisiTrack.Controllers
         public IActionResult Index()
         {
             var hosts = context.Hosts
-            .OrderByDescending(h => h.HostID) 
-            .ToList();
+
+               .Select(v => new HostViewModel
+               {
+                   HostID = v.HostID,
+                   HostName = v.FirstName + " " + v.LastName,
+                   Department = v.Department,
+                   ContactNumber = v.ContactNumber
+
+               }).OrderBy(r => r.HostName)          // Alphabetical order
+                  .ThenByDescending(r => r.HostID)
+                  .ToList();
+           
 
 
             var model = new HostIndexViewModel
@@ -66,7 +76,7 @@ namespace VisiTrack.Controllers
                 await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            model.HostList = context.Hosts.ToList();
+            model.HostLists = context.Hosts.ToList();
             return View("Index", model);
         }
 

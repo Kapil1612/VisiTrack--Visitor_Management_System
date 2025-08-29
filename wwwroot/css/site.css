@@ -21,8 +21,10 @@ body {
   margin-bottom: 60px;
 }
 
+
+/* 75px for 90% browser zoom */
 body {
-  margin-top: 75px;
+    margin-top: 85px;
 }
 
 

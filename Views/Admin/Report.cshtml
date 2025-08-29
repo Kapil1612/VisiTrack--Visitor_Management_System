@@ -3,46 +3,107 @@
 @{
     ViewData["Title"] = "Report page";
 }
-<div class="d-flex justify-content-between">
-    <h3>Visitor Log</h3>
+<div class="d-flex justify-content-between align-items-center">
+    <h3>Custom Vistor Report</h3>
     <div class="justify-content-end">
-        <a asp-controller="Admin" asp-action="GeneratePdf"
+        <a asp-controller="Admin" asp-action="GenerateCustomPdf"
            asp-route-startDate="@Model.StartDate"
            asp-route-endDate="@Model.EndDate"
+           asp-route-visitorSearch="@Model.VisitorSearch"
+           asp-route-hostSearch="@Model.HostSearch"
+           asp-route-companySearch="@Model.CompanySearch"
+           asp-route-purposeSearch="@Model.PurposeSearch"
+           asp-route-statusSearch="@Model.StatusSearch"
            class="btn btn-danger btn-sm ">
-            Download PDF Report
+            Download Report PDF
         </a>
 
     <a asp-action="Dashboard" class="btn btn-sm btn-outline-primary align-self-center">Back to Dashboard</a>
     </div>
 </div>
-<hr />
+<hr style="margin-top:11px; margin-bottom:11px;" />
 
-<div class="card bg-light shadow-sm mb-4 p-3">
-    <h4>Generate Custom Report</h4>
-    <form asp-action="Report" method="get" class="row g-3">
-        <div class="col-md-4">
-            <label asp-for="StartDate" class="form-label">Start Date</label>
-            <input asp-for="StartDate" class="form-control" type="date" />
+<div class="card bg-light shadow-sm mb-4 p-4">
+    <form asp-action="Report" method="get">
+        <div class="row g-4">
+           
+            <!-- Search Bar -->
+            <div class="col-md-2">
+            <p> Search :</p>
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="VisitorSearch" class="form-label">Visitor</label>
+                <input asp-for="VisitorSearch" class="form-control"
+                       placeholder="Visitor Name" />
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="CompanySearch" class="form-label">Company</label>
+                <input asp-for="CompanySearch" class="form-control"
+                       placeholder="Company Name" />
+            </div>
+
+
+            <div class="col-md-2">
+                <label asp-for="HostSearch" class="form-label">Host</label>
+                <input asp-for="HostSearch" class="form-control"
+                       placeholder="Host Name" />
+            </div>
+
+            
+            <div class="col-md-2">
+                <label asp-for="PurposeSearch" class="form-label">Purpose</label>
+                <input asp-for="PurposeSearch" class="form-control"
+                       placeholder="Purpose" />
+            </div>
+
+            <div class="col-md-2">
+                <label asp-for="StatusSearch" class="form-label">Status</label>
+                <input asp-for="StatusSearch" class="form-control"
+                       placeholder="Status" />
+            </div>
+         
         </div>
-        <div class="col-md-4">
-            <label asp-for="EndDate" class="form-label">End Date</label>
-            <input asp-for="EndDate" class="form-control" type="date" />
+        <div class="row g-4  mt-1">
+           
+            <div class="col-md-2">
+                <p> Date Range :</p>
+             
+            </div>
+            <!-- From Date -->
+            <div class="col-md-4">
+                <label asp-for="StartDate" class="form-label">From</label>
+                <input asp-for="StartDate" class="form-control" type="date" />
+            </div>
+
+            <!-- To Date -->
+            <div class="col-md-4">
+                <label asp-for="EndDate" class="form-label">To</label>
+                <input asp-for="EndDate" class="form-control" type="date" />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">View Report</button>
+            </div>
+
         </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Filter</button>
-        </div>
+
     </form>
 </div>
 
-@if (Model.CustomReport != null && Model.CustomReport.Any())
-{
 
-    <h2 class="text-primary mt-3">
-        📆 Report From  @(Model.StartDate.HasValue? Model.StartDate.Value.ToString("d") : "N/A")
-        to
-        @(Model.EndDate.HasValue? Model.EndDate.Value.ToString("d") : "N/A").
-    </h2>
+@if (Model.CustomReport != null && Model.CustomReport.Any())
+  {
+   
+   
+
+    
+    <p class="text-muted ms-2">  @Model.CustomCount Records Found</p>
+    
+  
+
     <table class="table table-bordered table-striped table-hover ">
         <thead>
             <tr>
@@ -66,58 +127,18 @@
                     <td>@visit.Company</td>
                     <td>@visit.HostName</td>
                     <td>@visit.Purpose</td>
-                    <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
-                    <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
+                    <td>@(visit.CheckInTime?.ToString("dd-MM-yyyy hh:mm tt") ?? "N/A")</td>
+                    <td>@(visit.CheckOutTime?.ToString("dd-MM-yyyy hh:mm tt") ?? "N/A")</td>
                     <td>@visit.Duration</td>
                     <td>@visit.Status</td>
                 </tr>
             }
         </tbody>
     </table>
-}
-else if (Model.StartDate.HasValue && Model.EndDate.HasValue)
-{
-    <p class="text-muted">
-        No records found between @Model.StartDate.Value.ToString("d") and @Model.EndDate.Value.ToString("d").
-    </p>
-}
-else if (Model.DailyReport != null && Model.DailyReport.Any())
-{
-   
-    <h2 class="text-primary mt-3">📆 Daily Report</h2>
-    <table class="table table-bordered table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Visit ID</th>
-                <th>Visitor Name</th>
-                <th>Company</th>
-                <th>Host Name</th>
-                <th>Purpose</th>
-                <th>Check-In Time</th>
-                <th>Check-Out Time</th>
-                <th>Duration</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var visit in Model.DailyReport)
-            {
-                <tr>
-                    <td>@visit.VisitID</td>
-                    <td>@visit.VisitorName</td>
-                    <td>@visit.Company</td>
-                    <td>@visit.HostName</td>
-                    <td>@visit.Purpose</td>
-                    <td>@(visit.CheckInTime?.ToString("g") ?? "N/A")</td>
-                    <td>@(visit.CheckOutTime?.ToString("g") ?? "N/A")</td>
-                    <td>@visit.Duration</td>
-                    <td>@visit.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+ }
 else
 {
-    <p class="text-muted">No Record found for today.</p>
+    <p class="text-muted">
+        No records found between @Model.StartDate.ToString() and @Model.EndDate.ToString()
+    </p>
 }

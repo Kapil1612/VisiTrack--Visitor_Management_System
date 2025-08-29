@@ -17,6 +17,9 @@ namespace VisiTrack.Controllers
 {
     public class VisitorController(ApplicationContext context) : Controller
     {
+
+
+
         [Authorize(Roles = "Admin,Staff")]
         public IActionResult CheckIn()
         {
@@ -98,7 +101,8 @@ namespace VisiTrack.Controllers
             {
                 Name = name,
                 Date = date,
-                Visits = query.Select(v => new ReportRowViewModel
+                Visits = query
+                .Select(v => new ReportRowViewModel
                 {
                     VisitID = v.VisitID,
                     VisitorName = (v.Visitor != null ? v.Visitor.FirstName + " " + v.Visitor.LastName : "Unknown"),
@@ -108,7 +112,9 @@ namespace VisiTrack.Controllers
                     CheckInTime = v.CheckInTime,
                     CheckOutTime = v.CheckOutTime,
                     Status = v.Status
-                }).ToList()
+                }).OrderBy(r => r.VisitorName)        
+                  .ThenByDescending(r => r.VisitID)
+                  .ToList()
             };
 
             return View(model);

@@ -20,12 +20,15 @@ public class Visit
     public Host? Host { get; set; }
 
     [Required]
-    [StringLength(500)]
+    [StringLength(50)]
     public string? Purpose { get; set; }
 
-
+    [DataType(DataType.DateTime)]
+    [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy hh:mm tt}", ApplyFormatInEditMode = true)]
     public DateTime? CheckInTime { get; set; } = DateTime.Now;
 
+    [DataType(DataType.DateTime)]
+    [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy hh:mm tt}", ApplyFormatInEditMode = true)]
     public DateTime? CheckOutTime { get; set; }
 
     [Required]
