@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VisiTrack.Data;
 using Microsoft.AspNetCore.Identity;
 using VisiTrack.Areas.Identity.Data;
+using Microsoft.AspNetCore.DataProtection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,10 @@ builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireCo
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\inetpub\wwwroot\App_Data\keys"))
+    .SetApplicationName("VisiTrack");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,7 +32,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
